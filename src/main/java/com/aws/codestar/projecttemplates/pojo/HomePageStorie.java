@@ -12,11 +12,11 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 
 /**
  *
- * 个人主页文章数据
+ * 首页文章数据
  *
  * @author lian
  */
-public class Storie {
+public class HomePageStorie {
 
 	private String id;
 
@@ -43,7 +43,7 @@ public class Storie {
 	/**
 	 * 图片
 	 */
-	private StoryImage storyImage;
+	private List<StoryImage> storyImage;
 
 	/**
 	 * 内容
@@ -98,8 +98,8 @@ public class Storie {
 	/**
 	 * @return the storyComment
 	 */
-	@XmlElementWrapper(name = "storyComments")
-	@XmlElement(name = "storyComment")
+	@XmlElementWrapper(name = "comments")
+	@XmlElement(name = "comment")
 	public List<StoryComment> getStoryComment() {
 		return storyComment;
 	}
@@ -114,15 +114,16 @@ public class Storie {
 	/**
 	 * @return the storyImage
 	 */
+	@XmlElementWrapper(name = "storyImages")
 	@XmlElement(name = "storyImage")
-	public StoryImage getStoryImage() {
+	public List<StoryImage> getStoryImage() {
 		return storyImage;
 	}
 
 	/**
 	 * @param storyImage the storyImage to set
 	 */
-	public void setStoryImage(StoryImage storyImage) {
+	public void setStoryImage(List<StoryImage> storyImage) {
 		this.storyImage = storyImage;
 	}
 
@@ -158,7 +159,7 @@ public class Storie {
 
 	@Override
 	public String toString() {
-		return "Storie{" + "id=" + id + ", author=" + author + ", postedAt=" + postedAt + ", storyComment=" + storyComment + ", storyCommentCount=" + storyCommentCount + ", storyImage=" + storyImage + ", content=" + content + '}';
+		return "HomePageStorie{" + "id=" + id + ", author=" + author + ", postedAt=" + postedAt + ", storyComment=" + storyComment + ", storyCommentCount=" + storyCommentCount + ", storyImage=" + storyImage + ", content=" + content + '}';
 	}
 
 }

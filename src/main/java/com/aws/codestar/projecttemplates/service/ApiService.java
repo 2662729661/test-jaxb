@@ -1,10 +1,8 @@
 package com.aws.codestar.projecttemplates.service;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.servlet.http.HttpSession;
@@ -12,12 +10,8 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -43,184 +37,107 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.aws.codestar.projecttemplates.configuration.AuthHttpClient;
+import com.aws.codestar.projecttemplates.jaxbXml.HomePageJAXB;
+import com.aws.codestar.projecttemplates.jaxbXml.PersonnelJAXB;
 import com.aws.codestar.projecttemplates.model.Emotion;
+import com.aws.codestar.projecttemplates.pojo.HttpSessionUser;
 import com.aws.codestar.projecttemplates.pojo.Personnel;
+import com.aws.codestar.projecttemplates.pojo.PersonnelFollo;
+import com.aws.codestar.projecttemplates.pojo.Embedded;
+import com.aws.codestar.projecttemplates.pojo.HomePageStorie;
+import com.aws.codestar.projecttemplates.pojo.StoryImage;
+import com.aws.codestar.projecttemplates.suppot.BeanToXml;
+import java.util.List;
+import javax.xml.bind.JAXBException;
 
 @Component
 public class ApiService {
-	
+
 	@Autowired
 	private RestTemplate restTemplate;
-	
-	String resourceUrl = "https://redan-api.herokuapp.com/";	
 
-	public Document getStory(HttpSession httpSession) throws ParserConfigurationException, UnsupportedEncodingException, JSONException, TransformerException, IOException{
-		
-		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-		Document document = documentBuilder.newDocument();
-		
-		ResponseEntity<String> response = restTemplate.getForEntity(resourceUrl + "stories/", String.class);
-	
-				JSONObject jSONObjectOfEntity = new JSONObject(response.getBody());
-				String stringOfEmbedded = jSONObjectOfEntity.get("_embedded").toString();
+	String resourceUrl = "https://redan-api.herokuapp.com/";
 
-				Element elementOfDocument = document.createElement("document");
-				document.appendChild(elementOfDocument);
-
-				//將目前已登入的 user 資訊(from httpSession)寫進 document.attribute
-				if (httpSession.getAttribute("me") != null) {
-					elementOfDocument.setAttribute("me", httpSession.getAttribute("me").toString());
-				}
-				if (httpSession.getAttribute("id") != null) {
-					elementOfDocument.setAttribute("id", httpSession.getAttribute("id").toString());
-				}
-				if (httpSession.getAttribute("personnelHref") != null) {
-					elementOfDocument.setAttribute("personnelHref", httpSession.getAttribute("personnelHref").toString());
-				}
-				if (httpSession.getAttribute("thirdParty") != null) {
-					elementOfDocument.setAttribute("thirdParty", httpSession.getAttribute("thirdParty").toString());
-				}
-				if (httpSession.getAttribute("nickname") != null) {
-					elementOfDocument.setAttribute("nickname", httpSession.getAttribute("nickname").toString());
-				}
-
-				//rank 0
-				//create stories---start
-				Element elementOfStories = document.createElement("stories");
-//				elementOfStories.setAttribute("status", new JSONObject(stringOfEntity).get("status").toString());
-				elementOfDocument.appendChild(elementOfStories);
-
-				JSONArray jSONArrayOfStories = new JSONObject(stringOfEmbedded).getJSONArray("stories");
-				for (int i = 0; i < jSONArrayOfStories.length(); i++) {
-					JSONObject jSONObjectOfStory = jSONArrayOfStories.getJSONObject(i);
-
-					//rank 1
-					//create story---start
-					Element elementOfStory = document.createElement("story");
-					elementOfStory.setAttribute("id", jSONObjectOfStory.get("id").toString());
-//					elementOfStory.setAttribute("emotions", jSONObjectOfStory.get("emotions").toString());
-					elementOfStory.setAttribute("postedAt", jSONObjectOfStory.get("postedAt").toString());
-
-					//rank 2
-					//create story/author, story/content---start
-					Element elementOfAuthor = document.createElement("author");
-					elementOfAuthor.setAttribute("id", jSONObjectOfStory.getJSONObject("author").get("id").toString());
-					elementOfAuthor.setAttribute("nickname", jSONObjectOfStory.getJSONObject("author").get("nickname").toString());
-					if (!"null".equals(jSONObjectOfStory.getJSONObject("author").get("profileImgUrl").toString())) {
-						elementOfAuthor.setAttribute("profileImgUrl", jSONObjectOfStory.getJSONObject("author").get("profileImgUrl").toString());
-					}
-					elementOfStory.appendChild(elementOfAuthor);
-
-					Element elementOfContent = document.createElement("content");
-					elementOfContent.appendChild(document.createTextNode(jSONObjectOfStory.get("content").toString()));
-					elementOfStory.appendChild(elementOfContent);
-
-					String mode = "";
-					Element elementOfStoryImages = document.createElement("storyImages");
-					JSONArray jSONArrayOfStoryImages = jSONObjectOfStory.getJSONArray("storyImage");
-					for (int j = 0; j < jSONArrayOfStoryImages.length(); j++) {
-						JSONObject jSONObjectOfStoryImage = jSONArrayOfStoryImages.getJSONObject(j);
-
-						Element elementOfUrl = document.createElement("url");
-						String decodedURL = URLDecoder.decode(jSONObjectOfStoryImage.get("imgUrl").toString(), "UTF-8");
-						elementOfUrl.appendChild(document.createTextNode(decodedURL));
-
-						Element elementOfStoryImage = document.createElement("storyImage");
-
-						if (j == 0) {
-							mode = "carousel-item active";
-						} else {
-							mode = "carousel-item";
-						}
-						elementOfStoryImage.setAttribute("mode", mode);
-
-						String count = String.valueOf(j);
-						elementOfStoryImage.setAttribute("count", count);
-						elementOfStoryImage.appendChild(elementOfUrl);
-						elementOfStoryImages.appendChild(elementOfStoryImage);
-					}
-					elementOfStory.appendChild(elementOfStoryImages);
-
-					Element elementOfHref = document.createElement("href");
-					elementOfHref.appendChild(document.createTextNode(jSONObjectOfStory.getJSONObject("_links").getJSONObject("self").get("href").toString()));
-					elementOfStory.appendChild(elementOfHref);
-					//create story/author, story/content---end
-
-					//rank 3
-					//create comments---start
-					Element elementOfComments = document.createElement("comments");
-					JSONArray jSONArrayOfComments = jSONObjectOfStory.getJSONArray("storyComment");
-					for (int j = 0; j < jSONArrayOfComments.length(); j++) {
-						JSONObject jSONObjectOfComment = jSONArrayOfComments.getJSONObject(j);
-						//rank 4
-						//create comment---start
-						Element elementOfComment = document.createElement("comment");
-						elementOfComment.setAttribute("id", jSONObjectOfComment.get("id").toString());
-
-						//rank 5
-						//create comment/content, comment/who---start
-						Element contentOfComment = document.createElement("content");
-						contentOfComment.appendChild(document.createTextNode(jSONObjectOfComment.get("content").toString()));
-						elementOfComment.appendChild(contentOfComment);
-
-						Element whoOfComment = document.createElement("who");
-						String whoId = jSONObjectOfComment.get("whoId").toString();
-						whoOfComment.setAttribute("id", whoId);
-						whoOfComment.setAttribute("nickname", jSONObjectOfComment.get("who").toString());
-						elementOfComment.appendChild(whoOfComment);
-						
-						//获取评论者头像
-						String string = getPersonnelsString(whoId);
-						if (string != null) {
-							String profileImgUrl = new JSONObject(string).get("profileImgUrl").toString();
-							if (!"null".equals(profileImgUrl)) {
-								whoOfComment.setAttribute("profileImgUrl", profileImgUrl);
-							}
-						}
-						//create comment/content, comment/who---end
-
-						elementOfComments.appendChild(elementOfComment);
-						//create comment---end
-					}
-					elementOfStory.appendChild(elementOfComments);
-					//create comments---end
-
-					elementOfStories.appendChild(elementOfStory);
-					//create story---end
-				}
-				//create stories---end
-			
-		
-
-		DOMSource domSource = new DOMSource(document);
-		StringWriter writer = new StringWriter();
-		StreamResult result = new StreamResult(writer);
-		TransformerFactory tf = TransformerFactory.newInstance();
-		Transformer transformer = tf.newTransformer();
-		transformer.transform(domSource, result);
-		System.out.println(writer.toString());
-		return document;
-	}
-	
 	/**
-	 * 获取个人数据
+	 * 返回首页数据
 	 *
-	 * @param id
+	 * @param httpSession
 	 * @return
+	 * @throws ParserConfigurationException
+	 * @throws UnsupportedEncodingException
+	 * @throws JSONException
+	 * @throws TransformerException
 	 * @throws IOException
 	 */
-	public String getPersonnelsString(String id) throws IOException {
-		HttpGet httpGet = new AuthHttpClient().bulidHttpGet("personnels/search/findOneById?id=" + id);
-		//获取请求体
-		CloseableHttpResponse execute = HttpClients.createDefault().execute(httpGet);
-		HttpEntity entity = execute.getEntity();
+	public Embedded getStory(HttpSession httpSession) throws ParserConfigurationException, UnsupportedEncodingException, JSONException, TransformerException, IOException {
 
-		if (entity != null) {
-			String string = EntityUtils.toString(entity, "UTF-8");
-			return string;
+		ResponseEntity<Embedded> response = restTemplate.getForEntity(resourceUrl + "stories/", Embedded.class);
+		Embedded body = response.getBody();
+		getStoryStoryImage(body);
+		//封装的登入数据
+		if (httpSession.getAttribute("id") != null) {
+			body.setHttpSessionUser(getHttpSessionUser(httpSession));
 		}
-		return null;
+
+		return body;
+	}
+
+	//图片数据
+	public void getStoryStoryImage(Embedded body) {
+		List<HomePageStorie> stories = body.getEmbedded().getStories();
+		for (int i = 0; i < stories.size(); i++) {
+			HomePageStorie homePageStorie = stories.get(i);
+			List<StoryImage> storyImages = homePageStorie.getStoryImage();
+			String mode = "";
+			for (int j = 0; j < storyImages.size(); j++) {
+				if (j == 0) {
+					mode = "carousel-item active";
+				} else {
+					mode = "carousel-item";
+				}
+				String count = String.valueOf(j);
+				StoryImage storyImage = storyImages.get(j);
+				storyImage.setMode(mode);
+				storyImage.setCount(count);
+			}
+		}
+	}
+
+	/**
+	 * 返回首页数据 Xml格式的
+	 *
+	 * @param httpSession
+	 * @return
+	 * @throws ParserConfigurationException
+	 * @throws UnsupportedEncodingException
+	 * @throws JSONException
+	 * @throws TransformerException
+	 * @throws IOException
+	 */
+	public Document getStoryXml(HttpSession httpSession) throws ParserConfigurationException, JSONException, TransformerException, IOException, JAXBException {
+		Embedded story = getStory(httpSession);
+
+		HomePageJAXB homePageJAXB = new HomePageJAXB();
+		homePageJAXB.setHomePage(story);
+		Document beanToXml = BeanToXml.beanToXml(homePageJAXB, HomePageJAXB.class);
+
+		return beanToXml;
+	}
+
+	/**
+	 * 获取个人主页数据 Xml数据格式
+	 *
+	 * @param id 参数
+	 * @return
+	 */
+	public Document getPersonnelsXml(String id, HttpSession httpSession) throws ParserConfigurationException, IOException, JAXBException {
+		Personnel personnel = getPersonnels(id, httpSession);
+
+		PersonnelJAXB personnelJAXB = new PersonnelJAXB();
+		personnelJAXB.setPersonnel1Homepage(personnel);
+		Document beanToXml = BeanToXml.beanToXml(personnelJAXB, PersonnelJAXB.class);
+
+		return beanToXml;
 	}
 
 	/**
@@ -229,177 +146,54 @@ public class ApiService {
 	 * @param id 参数
 	 * @return
 	 */
-	public Document getPersonnels(String id, HttpSession httpSession) throws ParserConfigurationException, IOException {
+	public Personnel getPersonnels(String id, HttpSession httpSession) throws ParserConfigurationException, IOException {
 
-		//获取文档对象
-		DocumentBuilderFactory newInstance = DocumentBuilderFactory.newInstance();
-		DocumentBuilder newDocumentBuilder = newInstance.newDocumentBuilder();
-		Document doc = newDocumentBuilder.newDocument();
+		ResponseEntity<Personnel> response = restTemplate.getForEntity(resourceUrl + "personnels/search/findOneById?id=" + id, Personnel.class);
 
-		//创建根节点
-		Element documentElement = doc.createElement("document");
-		doc.appendChild(documentElement);
-		
-		//將目前已登入的 user 資訊(from httpSession)寫進 document.attribute
-		if (httpSession.getAttribute("me") != null) {
-			documentElement.setAttribute("me", httpSession.getAttribute("me").toString());
-		}
+		Personnel personnel1Homepage = response.getBody();
+
 		if (httpSession.getAttribute("id") != null) {
-			documentElement.setAttribute("id", httpSession.getAttribute("id").toString());
-		}
-		if (httpSession.getAttribute("personnelHref") != null) {
-			documentElement.setAttribute("personnelHref", httpSession.getAttribute("personnelHref").toString());
-		}
-		if (httpSession.getAttribute("thirdParty") != null) {
-			documentElement.setAttribute("thirdParty", httpSession.getAttribute("thirdParty").toString());
-		}
-		if (httpSession.getAttribute("nickname") != null) {
-			documentElement.setAttribute("nickname", httpSession.getAttribute("nickname").toString());
-		}
-		
-		HttpGet httpGet = new AuthHttpClient().bulidHttpGet("personnels/search/findOneById?id=" + id);
-		//获取请求体
-		CloseableHttpResponse execute = HttpClients.createDefault().execute(httpGet);
-		HttpEntity entity = execute.getEntity();
 
-		if (entity != null) {
-			String string = EntityUtils.toString(entity, "UTF-8");
+			personnel1Homepage.setHttpSessionUser(getHttpSessionUser(httpSession));
 
-			//获取所有数据
-			JSONObject object = new JSONObject(string);
+			//判断该主页是否属于该用户
+			if (id.equals(httpSession.getAttribute("id").toString())) {
+				//按键置灰
+				personnel1Homepage.setIsAddFriend("true");
 
-			//获取非array的数据
-			//id-唯一标识
-			Element homepageIdElement = doc.createElement("homepageId");
-			homepageIdElement.setAttribute("id", object.get("id").toString());
-			documentElement.appendChild(homepageIdElement);
+				//显示好友列表
+				personnel1Homepage.setIsFriendList("true");
 
-			//coverImgUrl-背景图
-			if (!"null".equals(object.get("coverImgUrl").toString())) {
-				System.out.println("coverImgUrl-背景图--" + object.get("coverImgUrl").toString());
-				Element coverImgUrlElement = doc.createElement("coverImgUrl");
-				coverImgUrlElement.setAttribute("src", object.get("coverImgUrl").toString());
-				documentElement.appendChild(coverImgUrlElement);
-			}
-
-			//profileImgUrl-头像
-			if (!"null".equals(object.get("profileImgUrl").toString())) {
-				Element profileImgUrlElement = doc.createElement("profileImgUrl");
-				profileImgUrlElement.setAttribute("src", object.get("profileImgUrl").toString());
-				documentElement.appendChild(profileImgUrlElement);
-			}
-
-			//profileText-简介
-			Element profileTextElement = doc.createElement("profileText");
-			profileTextElement.appendChild(doc.createTextNode(object.get("profileText").toString()));
-			documentElement.appendChild(profileTextElement);
-
-			//nickname-用户名
-			Element nicknameElement = doc.createElement("nickname");
-			nicknameElement.appendChild(doc.createTextNode(object.get("nickname").toString()));
-			documentElement.appendChild(nicknameElement);
-
-			//userStoryCount-发表文章数量
-			Element userStoryCountElement = doc.createElement("userStoryCount");
-			userStoryCountElement.appendChild(doc.createTextNode(object.get("userStoryCount").toString()));
-			documentElement.appendChild(userStoryCountElement);
-
-			//followerCount-追随者数量
-			Element followerCountElement = doc.createElement("followerCount");
-			followerCountElement.appendChild(doc.createTextNode(object.get("followerCount").toString()));
-			documentElement.appendChild(followerCountElement);
-
-			//followingCount-跟踪者数量
-			Element followingCountElement = doc.createElement("followingCount");
-			followingCountElement.appendChild(doc.createTextNode(object.get("followingCount").toString()));
-			documentElement.appendChild(followingCountElement);
-
-			//userStory-发表的文章
-			Element userStoryElement = doc.createElement("userStory");
-			documentElement.appendChild(userStoryElement);
-			//userStoryArray
-			JSONArray userStoryArray = object.getJSONArray("userStory");
-			Element storyImagesElement = null;
-			for (int i = 0; i < userStoryArray.length(); i++) {
-				//初始化每行数据条数
-				if (i == 0 || i % 3 == 0) {
-					storyImagesElement = doc.createElement("storyImages");
-					userStoryElement.appendChild(storyImagesElement);
-				}
-				JSONObject object2 = userStoryArray.getJSONObject(i);
-				//storyImage-文章信息
-				Element storyImageElement = doc.createElement("storyImage");
-				storyImagesElement.appendChild(storyImageElement);
-				//storyImage/imgUrl-图片信息
-				JSONObject storyImageObject = object2.getJSONObject("storyImage");
-				storyImageElement.setAttribute("imgUrl", storyImageObject.get("imgUrl").toString());
-			}
-
-			if (httpSession.getAttribute("id") != null) {
-				//判断该主页是否属于该用户
-				if (id.equals(httpSession.getAttribute("id").toString())) {
-					//按键置灰
-					Element disabledElement = doc.createElement("disabled");
-					disabledElement.setAttribute("name", "true");
-					documentElement.appendChild(disabledElement);
-
-					//显示好友列表
-					Element friendsListElement = doc.createElement("friendsList");
-					friendsListElement.setAttribute("existence", "");
-					documentElement.appendChild(friendsListElement);
-
-					//查询所有好友
-					String findFriendAll = findFriendAll(httpSession.getAttribute("id").toString());
-					JSONObject friendObject = new JSONObject(findFriendAll);
-
-					//添加好友数量
-					friendsListElement.setAttribute("followerCount", friendObject.get("followerCount").toString());
-
-					//获取好友数据
-					JSONArray followersArray = friendObject.getJSONArray("followers");
-					for (int i = 0; i < followersArray.length(); i++) {
-						Element followersElement = doc.createElement("followers");
-						friendsListElement.appendChild(followersElement);
-						JSONObject followersObject = followersArray.getJSONObject(i);
-
-						//添加状态
-						followersElement.setAttribute("status", followersObject.get("status").toString());
-
-						//添加relatingUser中数据
-						JSONObject relatingUserObject = followersObject.getJSONObject("relatingUser");
-
-						//添加头像
-						if (!"null".equals(relatingUserObject.get("profileImgUrl").toString())) {
-							followersElement.setAttribute("profileImgUrl", relatingUserObject.get("profileImgUrl").toString());
-						}
-
-						//添加id
-						followersElement.setAttribute("id", relatingUserObject.get("id").toString());
-
-						//添加姓名
-						Element relatingUserNicknameElement = doc.createElement("nickname");
-						relatingUserNicknameElement.appendChild(doc.createTextNode(relatingUserObject.get("nickname").toString()));
-						followersElement.appendChild(relatingUserNicknameElement);
-					}
-
-				} else {
-					//判断是否已经添加过该用户
-					JSONArray followersArray = object.getJSONArray("following");
-					for (int i = 0; i < followersArray.length(); i++) {
-						//获取已添加好友id
-						String idString = followersArray.getJSONObject(i).getJSONObject("relatedUser").get("id").toString();
-						if (idString.equals(httpSession.getAttribute("id"))) {
-							//已添加按键置灰
-							Element disabledElement = doc.createElement("disabled");
-							disabledElement.setAttribute("name", "true");
-							documentElement.appendChild(disabledElement);
-						}
+			} else {
+				//判断是否已经添加过该用户
+				List<PersonnelFollo> following = personnel1Homepage.getFollowing();
+				for (int i = 0; i < following.size(); i++) {
+					//获取已添加好友id
+					String followingId = following.get(i).getRelatedUser().getId();
+					if (followingId.equals(httpSession.getAttribute("id"))) {
+						//已添加按键置灰
+						personnel1Homepage.setIsAddFriend("true");
 					}
 				}
 			}
-
 		}
-		return doc;
+		return personnel1Homepage;
+	}
+
+	/**
+	 * 封装HttpSessionUser数据
+	 *
+	 * @param httpSession
+	 * @return
+	 */
+	public HttpSessionUser getHttpSessionUser(HttpSession httpSession) {
+		HttpSessionUser httpSessionUser = new HttpSessionUser();
+		httpSessionUser.setId(httpSession.getAttribute("id").toString());
+		httpSessionUser.setMe(httpSession.getAttribute("me").toString());
+		httpSessionUser.setNickname(httpSession.getAttribute("nickname").toString());
+		httpSessionUser.setPersonnelHref(httpSession.getAttribute("personnelHref").toString());
+		httpSessionUser.setThirdParty(httpSession.getAttribute("thirdParty").toString());
+		return httpSessionUser;
 	}
 
 	/**
@@ -407,40 +201,21 @@ public class ApiService {
 	 *
 	 * @param id
 	 */
-	public String findFriendAll(String id) throws IOException {
-		//生成路径
-		HttpGet httpGet = new AuthHttpClient().bulidHttpGet("personnels/search/findOneById?id=" + id);
-		//获取请求体
-		CloseableHttpResponse execute = HttpClients.createDefault().execute(httpGet);
-		HttpEntity entity = execute.getEntity();
+	public Personnel findFriendAll(HttpSession httpSession) throws IOException, ParserConfigurationException {
 
-		if (entity != null) {
-			//获取数据
-			String string = EntityUtils.toString(entity, "UTF-8");
+		//获取该用户所有数据不包括登入数据
+		ResponseEntity<Personnel> response = restTemplate.getForEntity(resourceUrl + "personnels/search/findOneById?id=" + httpSession.getAttribute("id").toString(), Personnel.class);
 
-			//返回数据
-			JSONObject object = new JSONObject();
+		Personnel personnel = response.getBody();
 
-			//所有数据
-			JSONObject personalObject = new JSONObject(string);
+		System.out.println("查询该用户所有好友--" + personnel.toString());
 
-			//获取所有追随者数据
-			object.put("followers", personalObject.getJSONArray("followers"));
-			System.out.println("追随者:" + personalObject.getJSONArray("followers"));
-
-			//获取追随者数量
-			String followerCount = personalObject.get("followerCount").toString();
-			object.put("followerCount", followerCount);
-			System.out.println("追随者数量:" + followerCount);
-
-			if ("0".equals(followerCount)) {
-				return "登入失败";
-			}
-			return object.toString();
+		if (personnel != null) {
+			return personnel;
 		}
-		return "登入失败";
+		return null;
 	}
-	
+
 	/**
 	 * 呼叫 ../stories/" + id + "/storyComment/.. 取得某故事之最新留言
 	 *
@@ -591,17 +366,17 @@ public class ApiService {
 		jSONObjectOfParams.put("birth", birth);
 		jSONObjectOfParams.put("gender", gender);
 		jSONObjectOfParams.put("storeName", storeName);
-		System.out.println("jSONObjectOfParams: " + jSONObjectOfParams.toString());		
+		System.out.println("jSONObjectOfParams: " + jSONObjectOfParams.toString());
 
 		StringEntity stringEntityOfPersonnel = new StringEntity(jSONObjectOfParams.toString(), "UTF-8");
 		System.out.println("stringEntityOfPersonnel: " + stringEntityOfPersonnel);
-		
+
 		httpPost.setEntity(stringEntityOfPersonnel);
 		httpPost.setHeader("Content-type", "application/json");
-		CloseableHttpResponse closeableHttpResponse = closeableHttpClient.execute(httpPost);		
+		CloseableHttpResponse closeableHttpResponse = closeableHttpClient.execute(httpPost);
 
 		JSONObject jSONObjectOfResult = cover2Json(closeableHttpResponse);
-		
+
 		closeableHttpResponse.close();
 		closeableHttpClient.close();
 		return jSONObjectOfResult;
@@ -866,7 +641,7 @@ public class ApiService {
 		}
 		return null;
 	}
-	
+
 	private JSONObject cover2Json(CloseableHttpResponse closeableHttpResponse) {
 		HttpEntity httpEntity = closeableHttpResponse.getEntity();
 		if (httpEntity == null) {
@@ -891,7 +666,7 @@ public class ApiService {
 
 		return jSONObjectOfResult;
 	}
-	
+
 	//判断是否收藏
 	public boolean isBookmark(Emotion emotion) throws IOException {
 		//生成路径https://redan-api.herokuapp.com/bookmarks/search/findByMackeeper
@@ -941,20 +716,5 @@ public class ApiService {
 
 		closeableHttpResponse.close();
 		closeableHttpClient.close();
-	}
-
-	/**
-	 * 测试方法
-	 *
-	 * @param id 参数
-	 * @return
-	 */
-	public Personnel getTest() throws Exception {
-		
-		ResponseEntity<Personnel> response = restTemplate.getForEntity(resourceUrl + "personnels/search/findOneById?id=3", Personnel.class);
-
-		Personnel body = response.getBody();
-		
-		return body;
 	}
 }

@@ -15,23 +15,23 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author lian
  */
 @XmlRootElement(name = "document")
-public class PersonnelList {
+public class PersonnelJAXB {
 
-	private Personnel personnel;
+	private Personnel personnel1Homepage;
 
 	/**
 	 * @return the personnels
 	 */
-	@XmlElement(name = "personnel")
-	public Personnel getPersonnels() {
-		return personnel;
+	@XmlElement(name = "list")
+	public Personnel getPersonnel1Homepage() {
+		return personnel1Homepage;
 	}
 
 	/**
 	 * @param personnels the personnels to set
 	 */
-	public void setPersonnels(Personnel personnel) {
-		this.personnel = personnel;
+	public void setPersonnel1Homepage(Personnel personnel1Homepage) {
+		this.personnel1Homepage = personnel1Homepage;
 	}
 
 }

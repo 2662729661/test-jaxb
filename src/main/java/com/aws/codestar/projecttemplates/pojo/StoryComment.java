@@ -136,4 +136,9 @@ public class StoryComment {
 		this.who = who;
 	}
 
+	@Override
+	public String toString() {
+		return "StoryComment{" + "who=" + who + ", repliedAt=" + repliedAt + ", whoId=" + whoId + ", id=" + id + ", universallyUniqueIdentifier=" + universallyUniqueIdentifier + ", content=" + content + '}';
+	}
+
 }

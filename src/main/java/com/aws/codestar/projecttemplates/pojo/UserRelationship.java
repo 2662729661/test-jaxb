@@ -106,4 +106,10 @@ public class UserRelationship {
 	public void setRelatingUser(User relatingUser) {
 		this.relatingUser = relatingUser;
 	}
+
+	@Override
+	public String toString() {
+		return "UserRelationship{" + "status=" + status + ", relatingAt=" + relatingAt + ", relatedAt=" + relatedAt + ", relatedUser=" + relatedUser + ", relatingUser=" + relatingUser + '}';
+	}
+
 }

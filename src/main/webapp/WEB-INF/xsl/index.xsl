@@ -73,7 +73,7 @@
 			<!-- End emoji-picker JavaScript -->
 			<TITLE>Hello, 這裡是BBMall!</TITLE>
 		</HEAD>
-		<BODY name="{@me}">
+		<BODY name="{list/httpSessionUser/@me}">
 			<xsl:apply-templates select="." mode="header" />
 			<MAIN class="container">
 				<DIV class="my-3 p-3 rounded">
@@ -193,7 +193,7 @@
 							
 							</DIV>
 							<!-- story -->
-							<xsl:apply-templates select="stories"/>
+							<xsl:apply-templates select="list/embedded/stories"/>
 							<!-- story end -->
 						</DIV>
 					</DIV>
@@ -263,12 +263,12 @@
 										<img src="resources/1.jpg" class="rounded-circle img-personal-headPortrait"/>
 									</xsl:otherwise>
 								</xsl:choose>
-								<xsl:value-of select="author/@nickname"/>
+								<xsl:value-of select="author/nickname"/>
 							</A>
 						</BUTTON>
 						<DIV class="float-right">
 							<A CLass="text-muted">
-								<xsl:value-of select="@postedAt"/>
+								<xsl:value-of select="postedAt"/>
 							</A>
 						</DIV>
 					</DIV>
@@ -316,7 +316,7 @@
 							</FORM>
 							<FORM action="/like/" method="POST" class="mode">
 								<INPUT name="story" type="hidden" value="{@id}"/>
-								<INPUT name="who" type="hidden" value="{/document/@me}"/>
+								<INPUT name="who" type="hidden" value="{/document/list/httpSessionUser/@me}"/>
 								<BUTTON type="submit" class="btn btn-lg btn-light">
 									<I title="{@emotions}" CLass="far fa-heart"/>
 								</BUTTON>
@@ -324,7 +324,7 @@
 							</FORM>
 							<FORM action="/bookmark/" method="POST" class="mode">
 								<INPUT name="story" type="hidden" value="{@id}"/>
-								<INPUT name="who" type="hidden" value="{/document/@me}"/>
+								<INPUT name="who" type="hidden" value="{/document/list/httpSessionUser/@me}"/>
 								<BUTTON type="submit" class="btn btn-lg btn-light">
 									<I CLass="far fa-bookmark"></I>
 								</BUTTON>
@@ -335,7 +335,7 @@
 						<HR/>
 						<FORM action="/postComment/" method="PUT" class="mode" style="margin-bottom:-10px">
 							<P CLass="lead emoji-picker-container">
-								<INPUT type="hidden" name="who" value="{/document/@personnelHref}"/>
+								<INPUT type="hidden" name="who" value="{/document/list/httpSessionUser/@personnelHref}"/>
 								<INPUT type="hidden" name="storyId" value="{@id}"/>
 								<INPUT type="hidden" name="storyHref" value="{href}"/>
 								<INPUT type="text" name="content" placeholder="留言..."/>
@@ -359,11 +359,7 @@
 	<!--url-->
 	<xsl:template match="storyImage">
 		<DIV class="{@mode}">
-			<IMG class="d-block w-100" alt="First slide">
-				<xsl:attribute name="src">
-					<xsl:value-of select="url"/>
-				</xsl:attribute>
-			</IMG>
+			<IMG class="d-block w-100" alt="First slide" src="{@imgUrl}"></IMG>
 			<!--src="https://www.orangelady99.com/tw/upload_files/fonlego-rwd/prodpic/D_%E8%8F%93%E7%84%B6%E5%B9%B8%E7%A6%8F-%E5%A4%9A%E9%81%94%E5%8D%81%E5%B9%BE%E7%A8%AE%E7%86%B1%E8%B3%A3%E5%A4%A9%E7%84%B6%E6%B0%B4%E6%9E%9C%E4%B9%BE.jpg"--> 
 		</DIV>
 	</xsl:template>
@@ -385,7 +381,7 @@
 		<UL class="topic-comm" style="clear:both">
 			<LI>
 				<DIV class="d-inline">
-					<A CLass="text-left text-dark" title="{who/@nickname}" onclick="getHomepage({who/@id})">
+					<A CLass="text-left text-dark" title="{who}" onclick="getHomepage({@whoId})">
 						<xsl:choose>
 							<xsl:when test="who/@profileImgUrl">
 								<img src="{who/@profileImgUrl}" class="rounded-circle img-personal-headPortrait" />
@@ -394,7 +390,7 @@
 								<img src="resources/1.jpg" class="rounded-circle img-personal-headPortrait" />
 							</xsl:otherwise>
 						</xsl:choose>
-						<xsl:value-of select="who/@nickname"/>
+						<xsl:value-of select="who"/>
 					</A>
 				</DIV>
 				<SPAN class="d-inline">

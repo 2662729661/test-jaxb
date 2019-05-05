@@ -104,4 +104,10 @@ public class Bookmark {
 	public void setTargetStory(Storie targetStory) {
 		this.targetStory = targetStory;
 	}
+
+	@Override
+	public String toString() {
+		return "Bookmark{" + "id=" + id + ", markDate=" + markDate + ", universallyUniqueIdentifier=" + universallyUniqueIdentifier + ", mackeeper=" + mackeeper + ", targetStory=" + targetStory + '}';
+	}
+
 }

@@ -43,4 +43,10 @@ public class Emotion {
 	public void setTooltip(String tooltip) {
 		this.tooltip = tooltip;
 	}
+
+	@Override
+	public String toString() {
+		return "Emotion{" + "className=" + className + ", tooltip=" + tooltip + '}';
+	}
+
 }

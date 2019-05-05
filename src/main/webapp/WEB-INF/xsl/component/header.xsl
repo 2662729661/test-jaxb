@@ -29,7 +29,7 @@
 							</LI>
 						</UL>
 						<DIV>
-							<xsl:if test="@me">
+							<xsl:if test="list/httpSessionUser/@me">
 								<a href="/memberCenter">
 									<BUTTON name="memberCenter" class="btn btn-dark" href="/memberCenter">會員中心</BUTTON>
 								</a>
@@ -37,20 +37,20 @@
 						</DIV>
 						<!-- 登入 -->
 						<FORM action="/login/" method="GET">			
-							<xsl:if test="not(@me)">
+							<xsl:if test="not(list/httpSessionUser/@me)">
 								<BUTTON type="submit" class="btn btn-light">登入/註冊</BUTTON>
 							</xsl:if>
-							<xsl:if test="@nickname">
-								<A href="javascript:void(0)" style="color: white;">HI! <xsl:value-of select="@nickname"/></A>
+							<xsl:if test="list/httpSessionUser/@nickname">
+								<A href="javascript:void(0)" style="color: white;">HI! <xsl:value-of select="list/httpSessionUser/@nickname"/></A>
 							</xsl:if>
 							<BR />
-							<xsl:if test="@thirdParty">
-								<A href="javascript:void(0)" style="color: white;">以<xsl:value-of select="@thirdParty"/>登入</A>
+							<xsl:if test="list/httpSessionUser/@thirdParty">
+								<A href="javascript:void(0)" style="color: white;">以<xsl:value-of select="list/httpSessionUser/@thirdParty"/>登入</A>
 							</xsl:if>
 						</FORM>
 						<!-- 登出 -->
 						<FORM action="/logout/" method="GET">
-							<xsl:if test="@me">
+							<xsl:if test="list/httpSessionUser/@me">
 								<BUTTON type="submit" class="btn btn-dark">登出</BUTTON>
 							</xsl:if>
 						</FORM>

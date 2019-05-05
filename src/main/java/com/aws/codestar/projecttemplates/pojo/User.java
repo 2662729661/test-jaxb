@@ -73,17 +73,17 @@ public class User {
 	 * 注册时间
 	 */
 	private String openedAt;
-	
+
 	/**
 	 * 背景
 	 */
 	private String coverImgUrl;
-	
+
 	/**
 	 * 头像
 	 */
 	private String profileImgUrl;
-	
+
 	/**
 	 * 个人简介
 	 */
@@ -312,6 +312,11 @@ public class User {
 	 */
 	public void setProfileText(String profileText) {
 		this.profileText = profileText;
+	}
+
+	@Override
+	public String toString() {
+		return "User{" + "id=" + id + ", universallyUniqueIdentifier=" + universallyUniqueIdentifier + ", nickname=" + nickname + ", facebookId=" + facebookId + ", googleId=" + googleId + ", lineId=" + lineId + ", email=" + email + ", lastname=" + lastname + ", firstname=" + firstname + ", birth=" + birth + ", gender=" + gender + ", storeName=" + storeName + ", openedAt=" + openedAt + ", coverImgUrl=" + coverImgUrl + ", profileImgUrl=" + profileImgUrl + ", profileText=" + profileText + '}';
 	}
 
 }

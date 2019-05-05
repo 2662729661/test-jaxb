@@ -11,79 +11,79 @@ package com.aws.codestar.projecttemplates.pojo;
  * @author lian
  */
 public class ThirdPartyUser {
-	
+
 	private String id;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String googleId;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String profileText;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String firstname;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String gender;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String facebookId;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String lineId;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String birth;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String universallyUniqueIdentifier;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String lastname;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String openedAt;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String coverImgUrl;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String profileImgUrl;
-	
+
 	/**
 	 * 用户名
 	 */
 	private String nickname;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private String storeName;
-	
+
 	/**
 	 * 邮箱
 	 */
@@ -209,7 +209,8 @@ public class ThirdPartyUser {
 	}
 
 	/**
-	 * @param universallyUniqueIdentifier the universallyUniqueIdentifier to set
+	 * @param universallyUniqueIdentifier the universallyUniqueIdentifier to
+	 * set
 	 */
 	public void setUniversallyUniqueIdentifier(String universallyUniqueIdentifier) {
 		this.universallyUniqueIdentifier = universallyUniqueIdentifier;
@@ -312,4 +313,10 @@ public class ThirdPartyUser {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	@Override
+	public String toString() {
+		return "ThirdPartyUser{" + "id=" + id + ", googleId=" + googleId + ", profileText=" + profileText + ", firstname=" + firstname + ", gender=" + gender + ", facebookId=" + facebookId + ", lineId=" + lineId + ", birth=" + birth + ", universallyUniqueIdentifier=" + universallyUniqueIdentifier + ", lastname=" + lastname + ", openedAt=" + openedAt + ", coverImgUrl=" + coverImgUrl + ", profileImgUrl=" + profileImgUrl + ", nickname=" + nickname + ", storeName=" + storeName + ", email=" + email + '}';
+	}
+
 }

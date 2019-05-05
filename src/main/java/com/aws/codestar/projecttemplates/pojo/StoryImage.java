@@ -25,6 +25,10 @@ public class StoryImage {
 	 */
 	private String content;
 
+	private String count;
+
+	private String mode;
+
 	/**
 	 * @return the imgUrl
 	 */
@@ -43,7 +47,7 @@ public class StoryImage {
 	/**
 	 * @return the content
 	 */
-	@XmlElement(name = "content")
+	@XmlAttribute(name = "content")
 	public String getContent() {
 		return content;
 	}
@@ -54,4 +58,40 @@ public class StoryImage {
 	public void setContent(String content) {
 		this.content = content;
 	}
+
+	/**
+	 * @return the count
+	 */
+	@XmlAttribute(name = "count")
+	public String getCount() {
+		return count;
+	}
+
+	/**
+	 * @param count the count to set
+	 */
+	public void setCount(String count) {
+		this.count = count;
+	}
+
+	/**
+	 * @return the mode
+	 */
+	@XmlAttribute(name = "mode")
+	public String getMode() {
+		return mode;
+	}
+
+	/**
+	 * @param mode the mode to set
+	 */
+	public void setMode(String mode) {
+		this.mode = mode;
+	}
+
+	@Override
+	public String toString() {
+		return "StoryImage{" + "imgUrl=" + imgUrl + ", content=" + content + ", count=" + count + ", mode=" + mode + '}';
+	}
+
 }

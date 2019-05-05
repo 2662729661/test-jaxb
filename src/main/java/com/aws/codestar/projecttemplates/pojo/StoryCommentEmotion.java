@@ -85,4 +85,9 @@ public class StoryCommentEmotion {
 		this.storyComment = storyComment;
 	}
 
+	@Override
+	public String toString() {
+		return "StoryCommentEmotion{" + "id=" + id + ", emotion=" + emotion + ", who=" + who + ", storyComment=" + storyComment + '}';
+	}
+
 }

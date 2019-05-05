@@ -334,4 +334,10 @@ public class EmailUser {
 	public void setUserStory(List<Storie> userStory) {
 		this.userStory = userStory;
 	}
+
+	@Override
+	public String toString() {
+		return "EmailUser{" + "id=" + id + ", googleId=" + googleId + ", profileText=" + profileText + ", firstname=" + firstname + ", facebookId=" + facebookId + ", gender=" + gender + ", lineId=" + lineId + ", birth=" + birth + ", universallyUniqueIdentifier=" + universallyUniqueIdentifier + ", openedAt=" + openedAt + ", lastname=" + lastname + ", coverImgUrl=" + coverImgUrl + ", profileImgUrl=" + profileImgUrl + ", nickname=" + nickname + ", storeName=" + storeName + ", email=" + email + ", userStory=" + userStory + '}';
+	}
+
 }

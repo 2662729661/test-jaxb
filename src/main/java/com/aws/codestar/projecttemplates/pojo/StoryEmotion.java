@@ -88,4 +88,9 @@ public class StoryEmotion {
 		this.story = story;
 	}
 
+	@Override
+	public String toString() {
+		return "StoryEmotion{" + "id=" + id + ", who=" + who + ", emotion=" + emotion + ", story=" + story + '}';
+	}
+
 }

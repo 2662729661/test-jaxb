@@ -14,34 +14,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.aws.codestar.projecttemplates.configuration.oauth2Component.ThirdPartyAuthentication;
-import com.aws.codestar.projecttemplates.jaxbXml.PersonnelList;
 import com.aws.codestar.projecttemplates.model.Account;
 import com.aws.codestar.projecttemplates.model.Emotion;
 import com.aws.codestar.projecttemplates.model.Story;
 import com.aws.codestar.projecttemplates.pojo.Personnel;
 import com.aws.codestar.projecttemplates.service.ApiService;
 import com.aws.codestar.projecttemplates.service.EmailService;
-import com.aws.codestar.projecttemplates.suppot.BeanToXml;
 
 import java.security.SecureRandom;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
 
 /**
@@ -57,9 +54,7 @@ public class HelloWorldController {
 	private EmailService emailService;
 	@Autowired
 	private ThirdPartyAuthentication thirdPartyAuthentication;
-	
-	
-	
+
 	@RequestMapping(value = "/underconstruction")
 	public ModelAndView underconstruction(HttpServletRequest request) throws IOException, ParserConfigurationException {
 
@@ -73,24 +68,24 @@ public class HelloWorldController {
 		model.addObject("xmlSource", source);
 		return model;
 	}
-	
+
 	@RequestMapping(value = "/test2")
-	public ModelAndView test2(HttpServletRequest request,HttpSession httpSession) throws IOException, ParserConfigurationException, TransformerConfigurationException, TransformerException {
+	public ModelAndView test2(HttpServletRequest request, HttpSession httpSession) throws IOException, ParserConfigurationException, TransformerConfigurationException, TransformerException {
 
 		ModelAndView model = new ModelAndView("layout");
 		model.addObject("xmlSource", apiService.getStory(httpSession));
 		return model;
 	}
-	
+
 	@RequestMapping(value = "/test3")
-	public String test3(){				
+	public String test3() {
 //		String fooResourceUrl = "https://redan-api.herokuapp.com/stories";		
 //		ResponseEntity<String> response = restTemplate.getForEntity(fooResourceUrl + "/1", String.class);
 //		System.out.println(response);
-		
+
 		return "done";
 	}
-	
+
 	/**
 	 * 導向登入後頁面
 	 *
@@ -106,7 +101,7 @@ public class HelloWorldController {
 	@RequestMapping(value = "/")
 	public ModelAndView index(HttpServletResponse response, HttpSession httpSession,
 		@RequestParam(required = false) String code)
-		throws IOException, ParserConfigurationException, TransformerException, URISyntaxException {
+		throws IOException, ParserConfigurationException, TransformerException, URISyntaxException, JSONException, JAXBException {
 		JSONObject jSONObject = null;
 
 		// 取得 Line Token, 並解析資料以得 email 資訊
@@ -128,7 +123,7 @@ public class HelloWorldController {
 			// response.sendRedirect(httpSession.getAttribute("requestURI").toString());
 		}
 		ModelAndView model = new ModelAndView("index");
-		model.addObject("xmlSource", apiService.getStory(httpSession));
+		model.addObject("xmlSource", apiService.getStoryXml(httpSession));
 		return model;
 	}
 
@@ -199,19 +194,18 @@ public class HelloWorldController {
 	 * @throws ParserConfigurationException
 	 */
 	@RequestMapping(value = "/register", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public String register(Account account) throws IOException, ParserConfigurationException {		
-		if(true) {
+	public String register(Account account) throws IOException, ParserConfigurationException {
+		if (true) {
 			emailService.sendValify4email(account.getEmail(), account.getFirstName(), "http://localhost:8080/confirm?verifyNum=123");
 		}
 		JSONObject jSONObjectOfResult = apiService.registerUser(account.getFirstName(), "", "", "", account.getEmail(), account.getLastName(),
 			account.getFirstName(), "", "", "");
 		return jSONObjectOfResult.toString();
 	}
-	
-	
+
 	@RequestMapping(value = "/confirm", method = RequestMethod.GET)
-	public String register(@RequestParam(required = false) int verifyNum){
-		return "verifyNum: "+verifyNum;		
+	public String register(@RequestParam(required = false) int verifyNum) {
+		return "verifyNum: " + verifyNum;
 	}
 
 	/**
@@ -247,7 +241,7 @@ public class HelloWorldController {
 	 */
 	@RequestMapping(value = "/logout")
 	public ModelAndView logout(HttpServletResponse response, HttpSession httpSession)
-		throws IOException, ParserConfigurationException, TransformerException, URISyntaxException {
+		throws IOException, ParserConfigurationException, TransformerException, URISyntaxException, JAXBException{
 		httpSession.removeAttribute("me");
 		httpSession.removeAttribute("thirdParty");
 		httpSession.removeAttribute("nickname");
@@ -321,11 +315,10 @@ public class HelloWorldController {
 
 		for (int i = 0; i < jSONArrayComment.length(); i++) {
 			JSONObject jSONObject = new JSONObject();
-			
-			//获取头像
-			String string = apiService.getPersonnelsString(jSONArrayComment.getJSONObject(i).get("whoId").toString());
-			jSONObject.put("profileImgUrl", new JSONObject(string).get("profileImgUrl").toString());
-			
+
+//			//获取头像
+//			String string = apiService.getPersonnelsString(jSONArrayComment.getJSONObject(i).get("whoId").toString());
+//			jSONObject.put("profileImgUrl", new JSONObject(string).get("profileImgUrl").toString());
 			jSONObject.put("who", jSONArrayComment.getJSONObject(i).get("who").toString());
 			jSONObject.put("content", jSONArrayComment.getJSONObject(i).get("content").toString());
 			jSONArray.put(jSONObject);
@@ -368,7 +361,7 @@ public class HelloWorldController {
 
 		System.out.println("story:" + emotion.getStory());
 		System.out.println("who:" + emotion.getWho());
-		
+
 		apiService.bookmark(emotion, httpSession);
 		return emotion.toString();
 	}
@@ -421,13 +414,12 @@ public class HelloWorldController {
 	 *
 	 */
 	@RequestMapping(value = "/homepage", method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
-	public ModelAndView getPersonal2(String id, HttpServletResponse response, HttpSession httpSession) throws ParserConfigurationException, IOException, TransformerConfigurationException, TransformerException {
+	public ModelAndView getPersonal2(String id, HttpSession httpSession) throws ParserConfigurationException, IOException, TransformerConfigurationException, TransformerException, JAXBException {
 
 		// 将XML源文件添加到模型中，以便XsltView能够检测
 		ModelAndView model = new ModelAndView("homepage");
-		model.addObject("xmlSource", apiService.getPersonnels(id, httpSession));
+		model.addObject("xmlSource", apiService.getPersonnelsXml(id, httpSession));
 		return model;
-
 	}
 
 	/**
@@ -463,11 +455,11 @@ public class HelloWorldController {
 	 */
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@RequestMapping(value = "/findFriendAll", method = RequestMethod.POST, produces = {"text/String;charset=UTF-8"})
-	public String findFriendAll(HttpSession httpSession) throws IOException {
+	public String findFriendAll(HttpSession httpSession) throws IOException, ParserConfigurationException {
 
 		System.out.println("查询该用户:" + httpSession.getAttribute("id").toString() + " 好友");
 
-		return apiService.findFriendAll(httpSession.getAttribute("id").toString());
+		return apiService.findFriendAll(httpSession).toString();
 	}
 
 	/**
@@ -486,23 +478,10 @@ public class HelloWorldController {
 		model.addObject("xmlSource", source);
 		return model;
 	}
-	
-	/**
-	 * obj转xml测试
-	 */
-	@RequestMapping(value = "/qqss")
-	public void get(HttpServletResponse response) throws Exception {
-		Personnel qQss = apiService.getTest();
 
-		PersonnelList personnel = new PersonnelList();
-		personnel.setPersonnels(qQss);
-		Document beanToXml = BeanToXml.beanToXml(personnel, PersonnelList.class);
-
-		//写入到xml文件中
-//		String xmlPath = "C:/Users/lian/Desktop/a.xml";
-//		BufferedWriter bfw = new BufferedWriter(new FileWriter(new File(xmlPath)));
-//		bfw.write(beanToXml);
-//		bfw.close();
-		TransformerFactory.newInstance().newTransformer().transform(new DOMSource(beanToXml), new StreamResult(response.getOutputStream()));
+	@RequestMapping(value = "/qQss")
+	public void test33(HttpSession httpSession, HttpServletResponse response) throws ParserConfigurationException, JSONException, TransformerException, IOException, JAXBException {
+		Document storyXml = apiService.getStoryXml(httpSession);
+		TransformerFactory.newInstance().newTransformer().transform(new DOMSource(storyXml), new StreamResult(response.getOutputStream()));
 	}
 }

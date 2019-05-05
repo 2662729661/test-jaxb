@@ -5,10 +5,8 @@
  */
 package com.aws.codestar.projecttemplates.pojo;
 
-import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 
 /**
  * 跟踪者或跟随者
@@ -23,9 +21,14 @@ public class PersonnelFollo {
 	private String status;
 
 	/**
-	 * 跟踪者或跟随者数据
+	 * 跟踪者数据
 	 */
-	private List<Personnel> Personnels;
+	private Personnel relatingUser;
+
+	/**
+	 * 跟随者数据
+	 */
+	private Personnel relatedUser;
 
 	/**
 	 * @return the status
@@ -43,18 +46,38 @@ public class PersonnelFollo {
 	}
 
 	/**
-	 * @return the Personnels
+	 * @return the relatingUser
 	 */
-	@XmlElementWrapper(name = "Personnels")
-	@XmlElement(name = "Personnel")
-	public List<Personnel> getPersonnels() {
-		return Personnels;
+	@XmlElement(name = "relatingUser")
+	public Personnel getRelatingUser() {
+		return relatingUser;
 	}
 
 	/**
-	 * @param Personnels the Personnels to set
+	 * @param relatingUser the relatingUser to set
 	 */
-	public void setPersonnels(List<Personnel> Personnels) {
-		this.Personnels = Personnels;
+	public void setRelatingUser(Personnel relatingUser) {
+		this.relatingUser = relatingUser;
 	}
+
+	/**
+	 * @return the relatedUser
+	 */
+	@XmlElement(name = "relatedUser")
+	public Personnel getRelatedUser() {
+		return relatedUser;
+	}
+
+	/**
+	 * @param relatedUser the relatedUser to set
+	 */
+	public void setRelatedUser(Personnel relatedUser) {
+		this.relatedUser = relatedUser;
+	}
+
+	@Override
+	public String toString() {
+		return "PersonnelFollo{" + "status=" + status + ", relatingUser=" + relatingUser + ", relatedUser=" + relatedUser + '}';
+	}
+
 }
